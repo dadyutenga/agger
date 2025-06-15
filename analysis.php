@@ -17,7 +17,11 @@ $row = mysqli_fetch_assoc($result);
 $stats['total_patients'] = $row['total'];
 
 // Patients by status
-$result = mysqli_query($conn, "SELECT status, COUNT(*) as count FROM patients WHERE doctor_id = " . $_SESSION['id'] . " GROUP BY status");
+$result = mysqli_query($conn, "SELECT vs.status, COUNT(DISTINCT vs.patient_id) as count 
+                             FROM vital_signs vs 
+                             INNER JOIN patients p ON vs.patient_id = p.id 
+                             WHERE p.doctor_id = " . $_SESSION['id'] . " 
+                             GROUP BY vs.status");
 $stats['status'] = array();
 while($row = mysqli_fetch_assoc($result)) {
     $stats['status'][$row['status']] = $row['count'];
@@ -243,4 +247,4 @@ if($stmt = mysqli_prepare($conn, $sql)) {
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-</html> 
+</html>
