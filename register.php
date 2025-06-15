@@ -141,35 +141,29 @@ if(isset($_GET["status"])) {
             <!-- Doctor Registration Form -->
             <div class="tab-pane fade <?php echo $user_type === 'doctor' ? 'show active' : ''; ?>" id="doctor" role="tabpanel" aria-labelledby="doctor-tab">
                 <form action="register_doctor_process.php" method="post" id="doctorForm">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-floating mb-3">
-                                <input type="text" class="form-control" id="dfirst_name" name="first_name" required>
-                                <label for="dfirst_name">First Name</label>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-floating mb-3">
-                                <input type="text" class="form-control" id="dlast_name" name="last_name" required>
-                                <label for="dlast_name">Last Name</label>
-                            </div>
-                        </div>
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="full_name" name="full_name" required>
+                        <label for="full_name">Full Name</label>
                     </div>
                     <div class="form-floating mb-3">
-                        <input type="email" class="form-control" id="demail" name="email" required>
-                        <label for="demail">Email Address</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                        <label for="email">Email Address</label>
                     </div>
                     <div class="form-floating mb-3">
-                        <input type="text" class="form-control" id="dusername" name="username" required>
-                        <label for="dusername">Username</label>
+                        <input type="text" class="form-control" id="username" name="username" required>
+                        <label for="username">Username</label>
                     </div>
                     <div class="form-floating mb-3">
-                        <input type="password" class="form-control" id="dpassword" name="password" required>
-                        <label for="dpassword">Password</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                        <label for="password">Password</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                        <label for="confirm_password">Confirm Password</label>
                     </div>
                     <div class="form-floating mb-4">
-                        <input type="password" class="form-control" id="dconfirm_password" name="confirm_password" required>
-                        <label for="dconfirm_password">Confirm Password</label>
+                        <input type="text" class="form-control" id="phone" name="phone">
+                        <label for="phone">Phone Number (Optional)</label>
                     </div>
                     <div class="d-grid">
                         <button type="submit" class="btn btn-primary btn-lg">Register as Doctor</button>
@@ -183,32 +177,28 @@ if(isset($_GET["status"])) {
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-floating mb-3">
-                                <input type="text" class="form-control" id="cfirst_name" name="first_name" required>
-                                <label for="cfirst_name">First Name</label>
+                                <input type="text" class="form-control" id="first_name" name="first_name" required>
+                                <label for="first_name">First Name</label>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-floating mb-3">
-                                <input type="text" class="form-control" id="clast_name" name="last_name" required>
-                                <label for="clast_name">Last Name</label>
+                                <input type="text" class="form-control" id="last_name" name="last_name" required>
+                                <label for="last_name">Last Name</label>
                             </div>
                         </div>
                     </div>
                     <div class="form-floating mb-3">
-                        <input type="email" class="form-control" id="cemail" name="email" required>
-                        <label for="cemail">Email Address</label>
+                        <input type="text" class="form-control" id="c_username" name="username" required>
+                        <label for="c_username">Username</label>
                     </div>
                     <div class="form-floating mb-3">
-                        <input type="text" class="form-control" id="cusername" name="username" required>
-                        <label for="cusername">Username</label>
-                    </div>
-                    <div class="form-floating mb-3">
-                        <input type="password" class="form-control" id="cpassword" name="password" required>
-                        <label for="cpassword">Password</label>
+                        <input type="password" class="form-control" id="c_password" name="password" required>
+                        <label for="c_password">Password</label>
                     </div>
                     <div class="form-floating mb-4">
-                        <input type="password" class="form-control" id="cconfirm_password" name="confirm_password" required>
-                        <label for="cconfirm_password">Confirm Password</label>
+                        <input type="password" class="form-control" id="c_confirm_password" name="confirm_password" required>
+                        <label for="c_confirm_password">Confirm Password</label>
                     </div>
                     <div class="d-grid">
                         <button type="submit" class="btn btn-primary btn-lg">Register as Caretaker</button>
@@ -230,9 +220,14 @@ if(isset($_GET["status"])) {
             const doctorForm = document.getElementById('doctorForm');
             if (doctorForm) {
                 doctorForm.addEventListener('submit', function(e) {
-                    if (document.getElementById('dpassword').value !== document.getElementById('dconfirm_password').value) {
+                    if (document.getElementById('password').value !== document.getElementById('confirm_password').value) {
                         e.preventDefault();
                         alert('Passwords do not match');
+                        return false;
+                    }
+                    if (document.getElementById('password').value.length < 6) {
+                        e.preventDefault();
+                        alert('Password must be at least 6 characters long');
                         return false;
                     }
                     return true;
@@ -244,9 +239,14 @@ if(isset($_GET["status"])) {
             const caretakerForm = document.getElementById('caretakerForm');
             if (caretakerForm) {
                 caretakerForm.addEventListener('submit', function(e) {
-                    if (document.getElementById('cpassword').value !== document.getElementById('cconfirm_password').value) {
+                    if (document.getElementById('c_password').value !== document.getElementById('c_confirm_password').value) {
                         e.preventDefault();
                         alert('Passwords do not match');
+                        return false;
+                    }
+                    if (document.getElementById('c_password').value.length < 6) {
+                        e.preventDefault();
+                        alert('Password must be at least 6 characters long');
                         return false;
                     }
                     return true;

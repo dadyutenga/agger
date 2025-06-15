@@ -6,24 +6,17 @@ session_start();
 require_once "config.php";
 
 // Define variables and initialize with empty values
-$first_name = $last_name = $email = $username = $password = $confirm_password = "";
-$first_name_err = $last_name_err = $email_err = $username_err = $password_err = $confirm_password_err = "";
+$username = $password = $confirm_password = $full_name = $email = $phone = "";
+$username_err = $password_err = $confirm_password_err = $full_name_err = $email_err = "";
  
 // Processing form data when form is submitted
 if($_SERVER["REQUEST_METHOD"] == "POST"){
     
-    // Validate first name
-    if(empty(trim($_POST["first_name"]))){
-        $first_name_err = "Please enter your first name.";
+    // Validate full name
+    if(empty(trim($_POST["full_name"]))){
+        $full_name_err = "Please enter your full name.";
     } else{
-        $first_name = trim($_POST["first_name"]);
-    }
-    
-    // Validate last name
-    if(empty(trim($_POST["last_name"]))){
-        $last_name_err = "Please enter your last name.";
-    } else{
-        $last_name = trim($_POST["last_name"]);
+        $full_name = trim($_POST["full_name"]);
     }
     
     // Validate email
@@ -34,17 +27,11 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         $sql = "SELECT id FROM doctors WHERE email = ?";
         
         if($stmt = mysqli_prepare($conn, $sql)){
-            // Bind variables to the prepared statement as parameters
             mysqli_stmt_bind_param($stmt, "s", $param_email);
-            
-            // Set parameters
             $param_email = trim($_POST["email"]);
             
-            // Attempt to execute the prepared statement
             if(mysqli_stmt_execute($stmt)){
-                /* store result */
                 mysqli_stmt_store_result($stmt);
-                
                 if(mysqli_stmt_num_rows($stmt) == 1){
                     $email_err = "This email is already taken.";
                 } else{
@@ -53,8 +40,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             } else{
                 echo "Oops! Something went wrong. Please try again later.";
             }
-
-            // Close statement
             mysqli_stmt_close($stmt);
         }
     }
@@ -63,21 +48,14 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     if(empty(trim($_POST["username"]))){
         $username_err = "Please enter a username.";
     } else{
-        // Prepare a select statement
         $sql = "SELECT id FROM doctors WHERE username = ?";
         
         if($stmt = mysqli_prepare($conn, $sql)){
-            // Bind variables to the prepared statement as parameters
             mysqli_stmt_bind_param($stmt, "s", $param_username);
-            
-            // Set parameters
             $param_username = trim($_POST["username"]);
             
-            // Attempt to execute the prepared statement
             if(mysqli_stmt_execute($stmt)){
-                /* store result */
                 mysqli_stmt_store_result($stmt);
-                
                 if(mysqli_stmt_num_rows($stmt) == 1){
                     $username_err = "This username is already taken.";
                 } else{
@@ -86,8 +64,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             } else{
                 echo "Oops! Something went wrong. Please try again later.";
             }
-
-            // Close statement
             mysqli_stmt_close($stmt);
         }
     }
@@ -111,23 +87,26 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         }
     }
     
+    // Validate phone (optional)
+    $phone = !empty(trim($_POST["phone"])) ? trim($_POST["phone"]) : null;
+    
     // Check input errors before inserting in database
-    if(empty($first_name_err) && empty($last_name_err) && empty($email_err) && empty($username_err) && empty($password_err) && empty($confirm_password_err)){
+    if(empty($username_err) && empty($password_err) && empty($confirm_password_err) && 
+       empty($full_name_err) && empty($email_err)){
         
         // Prepare an insert statement
-        $sql = "INSERT INTO doctors (first_name, last_name, email, username, password, full_name) VALUES (?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO doctors (username, password, full_name, email, phone) VALUES (?, ?, ?, ?, ?)";
          
         if($stmt = mysqli_prepare($conn, $sql)){
             // Bind variables to the prepared statement as parameters
-            mysqli_stmt_bind_param($stmt, "ssssss", $param_first_name, $param_last_name, $param_email, $param_username, $param_password, $param_full_name);
+            mysqli_stmt_bind_param($stmt, "sssss", $param_username, $param_password, $param_full_name, $param_email, $param_phone);
             
             // Set parameters
-            $param_first_name = $first_name;
-            $param_last_name = $last_name;
-            $param_email = $email;
             $param_username = $username;
-            $param_password = password_hash($password, PASSWORD_DEFAULT); // Creates a password hash
-            $param_full_name = $first_name . ' ' . $last_name;
+            $param_password = password_hash($password, PASSWORD_DEFAULT);
+            $param_full_name = $full_name;
+            $param_email = $email;
+            $param_phone = $phone;
             
             // Attempt to execute the prepared statement
             if(mysqli_stmt_execute($stmt)){
@@ -138,15 +117,12 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                 header("location: register.php?type=doctor&error=Something went wrong. Please try again later.");
                 exit();
             }
-
-            // Close statement
             mysqli_stmt_close($stmt);
         }
     } else {
         // If there are validation errors, redirect back with error messages
         $error_messages = [];
-        if(!empty($first_name_err)) $error_messages[] = urlencode($first_name_err);
-        if(!empty($last_name_err)) $error_messages[] = urlencode($last_name_err);
+        if(!empty($full_name_err)) $error_messages[] = urlencode($full_name_err);
         if(!empty($email_err)) $error_messages[] = urlencode($email_err);
         if(!empty($username_err)) $error_messages[] = urlencode($username_err);
         if(!empty($password_err)) $error_messages[] = urlencode($password_err);

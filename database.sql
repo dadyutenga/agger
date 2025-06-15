@@ -11,7 +11,20 @@ CREATE TABLE IF NOT EXISTS doctors (
     email VARCHAR(100) UNIQUE NOT NULL,
     phone VARCHAR(20),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Create caretakers table
+CREATE TABLE IF NOT EXISTS caretakers (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    patient_id INT DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Create patients table
 CREATE TABLE IF NOT EXISTS patients (
@@ -26,7 +39,7 @@ CREATE TABLE IF NOT EXISTS patients (
     device_id VARCHAR(50) UNIQUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (doctor_id) REFERENCES doctors(id)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Create vital_signs table
 CREATE TABLE IF NOT EXISTS vital_signs (
@@ -45,4 +58,4 @@ CREATE TABLE IF NOT EXISTS vital_signs (
 
 -- Create index for faster queries
 CREATE INDEX idx_vital_signs_device ON vital_signs(device_id);
-CREATE INDEX idx_vital_signs_timestamp ON vital_signs(timestamp); 
+CREATE INDEX idx_vital_signs_timestamp ON vital_signs(timestamp);
