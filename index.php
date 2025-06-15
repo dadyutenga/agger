@@ -649,22 +649,7 @@ $show_debug = !empty($login_err) || !empty($username_err) || !empty($password_er
             </div>
 
             <div class="login-info">
-                <div id="doctorInfo" <?php echo $user_type === 'caretaker' ? 'style="display:none;"' : ''; ?>>
-                    <h6><i class="fas fa-user-md"></i>Doctor Access</h6>
-                    <ul>
-                        <li>Full dashboard access</li>
-                        <li>Patient management</li>
-                        <li>Analysis and reports</li>
-                    </ul>
-                </div>
-                <div id="caretakerInfo" <?php echo $user_type === 'doctor' ? 'style="display:none;"' : ''; ?>>
-                    <h6><i class="fas fa-hands-helping"></i>Caretaker Access</h6>
-                    <ul>
-                        <li>View assigned patient only</li>
-                        <li>Monitor vital signs</li>
-                        <li>View patient details</li>
-                    </ul>
-                </div>
+                
             </div>
         </form>
 
