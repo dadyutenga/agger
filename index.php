@@ -305,6 +305,10 @@ $show_debug = !empty($login_err) || !empty($username_err) || !empty($password_er
                 <button class="btn btn-primary btn-lg" type="submit">Login</button>
             </div>
 
+            <div class="login-link text-center mt-3">
+                Don't have an account? <a href="register.php">Register here</a>
+            </div>
+
             <div class="login-info mt-4">
                 <h6>Access Information:</h6>
                 <div id="doctorInfo" <?php echo $user_type === 'caretaker' ? 'style="display:none;"' : ''; ?>>
