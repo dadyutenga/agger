@@ -198,7 +198,7 @@ include "navbar.php";
                     <h2><?php
                         $result = mysqli_query($conn, "SELECT COUNT(*) as new FROM patients 
                             WHERE doctor_id = " . $_SESSION['id'] . " 
-                            AND DATE(created_at) = CURDATE()");
+                            AND DATE(registration_date) = CURDATE()");
                         $row = mysqli_fetch_assoc($result);
                         echo $row['new'];
                     ?></h2>
