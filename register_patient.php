@@ -121,6 +121,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
         $_SESSION["error"] = "<ul><li>" . implode("</li><li>", $errors) . "</li></ul>";
     }
 }
+
+// Include the navbar
+include "navbar.php";
 ?>
 
 <!DOCTYPE html>
@@ -130,42 +133,313 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register Patient - Patient Monitoring System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
+        :root {
+            --forest-green: #358927;
+            --wattle-green: #D7DE50;
+            --white: #ffffff;
+            --light-gray: #f8f9fa;
+            --dark-text: #2c3e50;
+            --shadow: rgba(53, 137, 39, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--white);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+        }
+
+        /* Override Bootstrap navbar colors completely */
+        .navbar {
+            background: linear-gradient(135deg, var(--forest-green) 0%, #2d7a23 100%) !important;
+            box-shadow: 0 2px 10px var(--shadow);
+        }
+
+        .navbar-brand, .navbar-nav .nav-link {
+            color: var(--white) !important;
+            font-weight: 500;
+        }
+
+        .navbar-brand:hover, .navbar-nav .nav-link:hover,
+        .navbar-brand:focus, .navbar-nav .nav-link:focus,
+        .navbar-brand:active, .navbar-nav .nav-link:active {
+            color: var(--white) !important;
+            background-color: transparent !important;
+            text-decoration: none !important;
+        }
+
+        .navbar-nav .nav-item .nav-link:hover,
+        .navbar-nav .nav-item .nav-link:focus,
+        .navbar-nav .nav-item .nav-link:active,
+        .navbar-nav .nav-item .nav-link:visited {
+            color: var(--white) !important;
+            background-color: transparent !important;
+            text-decoration: none !important;
+        }
+
+        .navbar-toggler {
+            border-color: var(--white) !important;
+        }
+
+        .navbar-toggler:hover, .navbar-toggler:focus {
+            border-color: var(--white) !important;
+            box-shadow: none !important;
+        }
+
+        .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.85%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+        }
+
+        /* Remove Bootstrap's default link colors */
+        a, a:hover, a:focus, a:active, a:visited {
+            color: inherit !important;
+            text-decoration: none !important;
+        }
+
+        .navbar a, .navbar a:hover, .navbar a:focus, .navbar a:active, .navbar a:visited {
+            color: var(--white) !important;
+        }
+
+        .navbar a:hover, .navbar a:focus {
+            color: var(--white) !important;
+            background-color: transparent !important;
+        }
+
+        /* Remove Bootstrap focus effects */
+        .navbar-nav .nav-link:focus,
+        .navbar-brand:focus,
+        .navbar-toggler:focus,
+        *:focus {
+            box-shadow: none !important;
+            outline: none !important;
+            border-color: transparent !important;
+        }
+
         .form-container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 30px auto;
-            padding: 20px;
-            background: white;
+            padding: 30px;
+            background: var(--white);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px var(--shadow);
+            border: 1px solid rgba(53, 137, 39, 0.1);
+        }
+
+        h2 {
+            color: var(--forest-green);
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.2rem;
+            position: relative;
+        }
+
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(135deg, var(--forest-green), var(--wattle-green));
+            border-radius: 2px;
+        }
+
+        .form-label {
+            color: var(--forest-green);
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-control {
+            border: 2px solid rgba(53, 137, 39, 0.1);
             border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            padding: 12px 15px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: var(--white);
         }
-        .preview-image {
-            max-width: 200px;
-            margin-top: 10px;
+
+        .form-control:focus {
+            border-color: var(--forest-green);
+            box-shadow: 0 0 0 0.2rem rgba(53, 137, 39, 0.25);
+            outline: none;
         }
+
+        .form-control:hover {
+            border-color: var(--wattle-green);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--forest-green), #2d7a23);
+            border: none;
+            border-radius: 15px;
+            padding: 12px 30px;
+            font-weight: 600;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px var(--shadow);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #2d7a23, var(--forest-green));
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(53, 137, 39, 0.3);
+        }
+
+        .btn-primary:focus {
+            box-shadow: 0 0 0 0.2rem rgba(53, 137, 39, 0.25);
+        }
+
         .alert {
-            margin-top: 20px;
+            border-radius: 15px;
+            border: none;
+            padding: 20px;
+            margin-bottom: 25px;
+            font-weight: 500;
         }
+
+        .alert-danger {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, var(--forest-green), #2d7a23);
+            color: white;
+        }
+
         .alert ul {
             margin-bottom: 0;
             padding-left: 20px;
         }
+
+        .preview-image {
+            max-width: 200px;
+            margin-top: 15px;
+            border-radius: 10px;
+            border: 3px solid var(--wattle-green);
+            box-shadow: 0 4px 10px var(--shadow);
+        }
+
+        .card {
+            border-radius: 15px;
+            border: 2px solid rgba(53, 137, 39, 0.1);
+            box-shadow: 0 5px 15px var(--shadow);
+            margin-bottom: 25px;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, rgba(53, 137, 39, 0.05), rgba(215, 222, 80, 0.05));
+            border-radius: 15px 15px 0 0;
+            border-bottom: 2px solid rgba(53, 137, 39, 0.1);
+            padding: 20px;
+        }
+
+        .card-header h5 {
+            color: var(--forest-green);
+            font-weight: 600;
+            margin: 0;
+            font-size: 1.1rem;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .text-info {
+            color: var(--forest-green) !important;
+        }
+
+        .fas {
+            color: var(--forest-green);
+            margin-right: 8px;
+        }
+
+        /* Form sections */
+        .mb-3 {
+            margin-bottom: 25px !important;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .form-container {
+                margin: 20px 10px;
+                padding: 20px;
+                border-radius: 15px;
+            }
+            
+            h2 {
+                font-size: 1.8rem;
+            }
+            
+            .btn-primary {
+                width: 100%;
+                padding: 15px;
+            }
+        }
+
+        /* Input file styling */
+        input[type="file"] {
+            cursor: pointer;
+        }
+
+        input[type="file"]::-webkit-file-upload-button {
+            background: linear-gradient(135deg, var(--forest-green), #2d7a23);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 15px;
+            margin-right: 10px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        input[type="file"]::-webkit-file-upload-button:hover {
+            background: linear-gradient(135deg, #2d7a23, var(--forest-green));
+        }
+
+        /* Select dropdown styling */
+        select.form-control {
+            cursor: pointer;
+        }
+
+        /* Number input styling */
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+        }
     </style>
 </head>
-<body class="bg-light">
-    <?php include 'navbar.php'; ?>
-
+<body>
     <div class="container">
         <div class="form-container">
-            <h2 class="mb-4">Register New Patient</h2>
+            <h2><i class="fas fa-user-plus me-3"></i>Register New Patient</h2>
             
             <?php 
             if(isset($_SESSION["error"])) { 
-                echo '<div class="alert alert-danger">' . $_SESSION["error"] . '</div>';
+                echo '<div class="alert alert-danger"><i class="fas fa-exclamation-triangle me-2"></i>' . $_SESSION["error"] . '</div>';
                 unset($_SESSION["error"]);
             }
             if(isset($_SESSION["success"])) { 
-                echo '<div class="alert alert-success">' . $_SESSION["success"] . '</div>';
+                echo '<div class="alert alert-success"><i class="fas fa-check-circle me-2"></i>' . $_SESSION["success"] . '</div>';
                 unset($_SESSION["success"]);
             }
             ?>
@@ -173,15 +447,15 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
             <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" enctype="multipart/form-data" id="registrationForm">
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label class="form-label">Full Name</label>
-                        <input type="text" name="full_name" class="form-control" required value="<?php echo isset($_POST['full_name']) ? htmlspecialchars($_POST['full_name']) : ''; ?>">
+                        <label class="form-label"><i class="fas fa-user me-2"></i>Full Name</label>
+                        <input type="text" name="full_name" class="form-control" required value="<?php echo isset($_POST['full_name']) ? htmlspecialchars($_POST['full_name']) : ''; ?>" placeholder="Enter patient's full name">
                     </div>
                     <div class="col-md-3 mb-3">
-                        <label class="form-label">Age</label>
-                        <input type="number" name="age" class="form-control" required min="0" max="150" value="<?php echo isset($_POST['age']) ? htmlspecialchars($_POST['age']) : ''; ?>">
+                        <label class="form-label"><i class="fas fa-birthday-cake me-2"></i>Age</label>
+                        <input type="number" name="age" class="form-control" required min="0" max="150" value="<?php echo isset($_POST['age']) ? htmlspecialchars($_POST['age']) : ''; ?>" placeholder="Age">
                     </div>
                     <div class="col-md-3 mb-3">
-                        <label class="form-label">Gender</label>
+                        <label class="form-label"><i class="fas fa-venus-mars me-2"></i>Gender</label>
                         <select name="gender" class="form-control" required>
                             <option value="">Select Gender</option>
                             <option value="Male" <?php echo (isset($_POST['gender']) && $_POST['gender'] == 'Male') ? 'selected' : ''; ?>>Male</option>
@@ -193,37 +467,37 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 <div class="row">
                     <div class="col-md-4 mb-3">
-                        <label class="form-label">Region</label>
-                        <input type="text" name="region" class="form-control" required value="<?php echo isset($_POST['region']) ? htmlspecialchars($_POST['region']) : ''; ?>">
+                        <label class="form-label"><i class="fas fa-globe me-2"></i>Region</label>
+                        <input type="text" name="region" class="form-control" required value="<?php echo isset($_POST['region']) ? htmlspecialchars($_POST['region']) : ''; ?>" placeholder="Enter region">
                     </div>
                     <div class="col-md-4 mb-3">
-                        <label class="form-label">Ward</label>
-                        <input type="text" name="ward" class="form-control" required value="<?php echo isset($_POST['ward']) ? htmlspecialchars($_POST['ward']) : ''; ?>">
+                        <label class="form-label"><i class="fas fa-map-marker-alt me-2"></i>Ward</label>
+                        <input type="text" name="ward" class="form-control" required value="<?php echo isset($_POST['ward']) ? htmlspecialchars($_POST['ward']) : ''; ?>" placeholder="Enter ward">
                     </div>
                     <div class="col-md-4 mb-3">
-                        <label class="form-label">Street</label>
-                        <input type="text" name="street" class="form-control" required value="<?php echo isset($_POST['street']) ? htmlspecialchars($_POST['street']) : ''; ?>">
+                        <label class="form-label"><i class="fas fa-road me-2"></i>Street</label>
+                        <input type="text" name="street" class="form-control" required value="<?php echo isset($_POST['street']) ? htmlspecialchars($_POST['street']) : ''; ?>" placeholder="Enter street">
                     </div>
                 </div>
 
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label class="form-label">Caretaker Name</label>
-                        <input type="text" name="caretaker_name" class="form-control" required value="<?php echo isset($_POST['caretaker_name']) ? htmlspecialchars($_POST['caretaker_name']) : ''; ?>">
+                        <label class="form-label"><i class="fas fa-user-nurse me-2"></i>Caretaker Name</label>
+                        <input type="text" name="caretaker_name" class="form-control" required value="<?php echo isset($_POST['caretaker_name']) ? htmlspecialchars($_POST['caretaker_name']) : ''; ?>" placeholder="Enter caretaker's name">
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label class="form-label">Caretaker Phone</label>
-                        <input type="tel" name="caretaker_phone" class="form-control" required pattern="[0-9]+" value="<?php echo isset($_POST['caretaker_phone']) ? htmlspecialchars($_POST['caretaker_phone']) : ''; ?>">
+                        <label class="form-label"><i class="fas fa-phone me-2"></i>Caretaker Phone</label>
+                        <input type="tel" name="caretaker_phone" class="form-control" required pattern="[0-9]+" value="<?php echo isset($_POST['caretaker_phone']) ? htmlspecialchars($_POST['caretaker_phone']) : ''; ?>" placeholder="Enter phone number">
                     </div>
                 </div>
 
                 <div class="card mb-4">
                     <div class="card-header">
-                        <h5 class="mb-0">Caretaker Access</h5>
+                        <h5><i class="fas fa-key me-2"></i>Caretaker Access</h5>
                     </div>
                     <div class="card-body">
                         <p class="text-info mb-0">
-                            <i class="fas fa-info-circle"></i>
+                            <i class="fas fa-info-circle me-2"></i>
                             Caretaker login credentials will be generated automatically upon registration.
                             The credentials will be displayed after successful registration.
                         </p>
@@ -232,17 +506,21 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label class="form-label">Registration Date</label>
+                        <label class="form-label"><i class="fas fa-calendar me-2"></i>Registration Date</label>
                         <input type="date" name="registration_date" class="form-control" required value="<?php echo isset($_POST['registration_date']) ? htmlspecialchars($_POST['registration_date']) : date('Y-m-d'); ?>">
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label class="form-label">Patient Photo</label>
+                        <label class="form-label"><i class="fas fa-camera me-2"></i>Patient Photo</label>
                         <input type="file" name="patient_image" class="form-control" accept="image/jpeg,image/png" required onchange="previewImage(this)">
                         <img id="preview" class="preview-image d-none">
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary">Register Patient</button>
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Register Patient
+                    </button>
+                </div>
             </form>
         </div>
     </div>
@@ -252,7 +530,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
             if (input.files && input.files[0]) {
                 var reader = new FileReader();
                 reader.onload = function(e) {
-                    $('#preview').attr('src', e.target.result).removeClass('d-none');
+                    document.getElementById('preview').src = e.target.result;
+                    document.getElementById('preview').classList.remove('d-none');
                 }
                 reader.readAsDataURL(input.files[0]);
             }
@@ -268,7 +547,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
             }
         });
     </script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-</html> 
+</html>
