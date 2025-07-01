@@ -49,6 +49,9 @@ if($_SESSION["user_type"] === "doctor") {
 
 mysqli_stmt_execute($stmt);
 $participants = mysqli_stmt_get_result($stmt);
+
+// Include the navbar
+include "navbar.php";
 ?>
 
 <!DOCTYPE html>
@@ -58,135 +61,382 @@ $participants = mysqli_stmt_get_result($stmt);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat - Patient Monitoring System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/boxicons@2.0.7/css/boxicons.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
+        :root {
+            --forest-green: #358927;
+            --wattle-green: #D7DE50;
+            --white: #ffffff;
+            --light-gray: #f8f9fa;
+            --dark-text: #2c3e50;
+            --shadow: rgba(53, 137, 39, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--white);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+        }
+
+        /* Override Bootstrap navbar colors */
+        .navbar {
+            background: linear-gradient(135deg, var(--forest-green) 0%, #2d7a23 100%) !important;
+            box-shadow: 0 2px 10px var(--shadow);
+        }
+
+        .navbar-brand, .navbar-nav .nav-link {
+            color: var(--white) !important;
+            font-weight: 500;
+        }
+
+        .navbar-brand:hover, .navbar-nav .nav-link:hover,
+        .navbar-brand:focus, .navbar-nav .nav-link:focus,
+        .navbar-brand:active, .navbar-nav .nav-link:active {
+            color: var(--white) !important;
+            background-color: transparent !important;
+            text-decoration: none !important;
+        }
+
+        .navbar-toggler {
+            border-color: var(--white) !important;
+        }
+
+        .navbar-toggler:hover, .navbar-toggler:focus {
+            border-color: var(--white) !important;
+            box-shadow: none !important;
+        }
+
+        /* Chat container */
         .chat-container {
-            height: calc(100vh - 100px);
-            margin-top: 20px;
+            background: var(--white);
+            border-radius: 20px;
+            margin: 30px auto;
+            padding: 0;
+            box-shadow: 0 10px 30px var(--shadow);
+            border: 1px solid rgba(53, 137, 39, 0.1);
+            height: calc(100vh - 160px);
+            overflow: hidden;
         }
+
+        .chat-header {
+            background: linear-gradient(135deg, var(--forest-green), #2d7a23);
+            color: var(--white);
+            padding: 20px;
+            text-align: center;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .chat-header h2 {
+            color: var(--white);
+            font-weight: 700;
+            margin: 0;
+            font-size: 1.8rem;
+        }
+
         .participants-list {
-            height: 100%;
+            height: calc(100vh - 260px);
             overflow-y: auto;
-            border-right: 1px solid #dee2e6;
+            border-right: 2px solid rgba(53, 137, 39, 0.1);
+            background: linear-gradient(135deg, var(--white), var(--light-gray));
         }
+
         .chat-messages {
-            height: 100%;
+            height: calc(100vh - 260px);
             display: flex;
             flex-direction: column;
+            background: var(--white);
         }
+
         .messages-container {
             flex-grow: 1;
             overflow-y: auto;
             padding: 20px;
+            background: linear-gradient(135deg, rgba(53, 137, 39, 0.02), rgba(215, 222, 80, 0.02));
         }
+
         .message {
             margin-bottom: 15px;
             max-width: 80%;
+            display: flex;
+            flex-direction: column;
         }
+
         .message.sent {
-            margin-left: auto;
+            align-self: flex-end;
+            align-items: flex-end;
         }
+
         .message.received {
-            margin-right: auto;
+            align-self: flex-start;
+            align-items: flex-start;
         }
+
         .message-content {
-            padding: 10px 15px;
-            border-radius: 15px;
+            padding: 12px 18px;
+            border-radius: 18px;
             display: inline-block;
+            word-wrap: break-word;
+            max-width: 100%;
+            font-size: 14px;
+            line-height: 1.4;
         }
+
         .message.sent .message-content {
-            background: #007bff;
-            color: white;
+            background: linear-gradient(135deg, var(--forest-green), #2d7a23);
+            color: var(--white);
+            border-bottom-right-radius: 6px;
         }
+
         .message.received .message-content {
-            background: #e9ecef;
+            background: linear-gradient(135deg, var(--light-gray), #e9ecef);
+            color: var(--dark-text);
+            border-bottom-left-radius: 6px;
+            border: 1px solid rgba(53, 137, 39, 0.1);
         }
+
         .message-time {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: #6c757d;
             margin-top: 5px;
+            font-weight: 500;
         }
+
         .chat-input {
             padding: 20px;
-            background: white;
-            border-top: 1px solid #dee2e6;
+            background: linear-gradient(135deg, var(--light-gray), var(--white));
+            border-top: 2px solid rgba(53, 137, 39, 0.1);
+            border-radius: 0 0 20px 20px;
         }
+
+        .chat-input .form-control {
+            border: 2px solid rgba(53, 137, 39, 0.1);
+            border-radius: 25px;
+            padding: 12px 20px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .chat-input .form-control:focus {
+            border-color: var(--forest-green);
+            box-shadow: 0 0 0 0.2rem rgba(53, 137, 39, 0.25);
+        }
+
+        .chat-input .btn {
+            background: linear-gradient(135deg, var(--forest-green), #2d7a23);
+            border: none;
+            border-radius: 25px;
+            padding: 12px 25px;
+            font-weight: 600;
+            color: var(--white);
+            transition: all 0.3s ease;
+        }
+
+        .chat-input .btn:hover {
+            background: linear-gradient(135deg, #2d7a23, var(--forest-green));
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(53, 137, 39, 0.3);
+        }
+
         .participant-item {
-            padding: 10px 15px;
-            border-bottom: 1px solid #dee2e6;
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(53, 137, 39, 0.1);
             cursor: pointer;
+            transition: all 0.3s ease;
+            background: transparent;
         }
+
         .participant-item:hover {
-            background: #f8f9fa;
+            background: rgba(53, 137, 39, 0.05);
+            transform: translateX(5px);
         }
+
         .participant-item.active {
-            background: #e9ecef;
+            background: linear-gradient(135deg, var(--forest-green), #2d7a23);
+            color: var(--white);
+            border-left: 4px solid var(--wattle-green);
         }
+
+        .participant-item.active .text-muted {
+            color: rgba(255, 255, 255, 0.8) !important;
+        }
+
+        .participant-name {
+            font-weight: 600;
+            color: var(--dark-text);
+            font-size: 0.95rem;
+        }
+
+        .participant-item.active .participant-name {
+            color: var(--white);
+        }
+
+        .participant-username {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-top: 2px;
+        }
+
         .unread-badge {
-            background: #dc3545;
-            color: white;
-            padding: 2px 6px;
-            border-radius: 10px;
-            font-size: 0.75rem;
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: var(--white);
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            box-shadow: 0 2px 5px rgba(220, 53, 69, 0.3);
         }
+
         .welcome-message {
             text-align: center;
+            color: var(--forest-green);
+            margin-top: 80px;
+            padding: 40px;
+        }
+
+        .welcome-message i {
+            font-size: 64px;
+            color: var(--forest-green);
+            margin-bottom: 20px;
+            opacity: 0.7;
+        }
+
+        .welcome-message h4 {
+            color: var(--forest-green);
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .welcome-message p {
             color: #6c757d;
-            margin-top: 40px;
+            font-size: 0.9rem;
+        }
+
+        /* Scrollbar styling */
+        .participants-list::-webkit-scrollbar,
+        .messages-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .participants-list::-webkit-scrollbar-track,
+        .messages-container::-webkit-scrollbar-track {
+            background: var(--light-gray);
+        }
+
+        .participants-list::-webkit-scrollbar-thumb,
+        .messages-container::-webkit-scrollbar-thumb {
+            background: var(--forest-green);
+            border-radius: 3px;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .chat-container {
+                margin: 20px 10px;
+                height: calc(100vh - 140px);
+            }
+            
+            .participants-list {
+                height: calc(100vh - 240px);
+            }
+            
+            .chat-messages {
+                height: calc(100vh - 240px);
+            }
+            
+            .message {
+                max-width: 95%;
+            }
+            
+            .participant-item {
+                padding: 12px 15px;
+            }
+        }
+
+        /* Animation for new messages */
+        @keyframes messageSlide {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message {
+            animation: messageSlide 0.3s ease-out;
         }
     </style>
 </head>
 <body>
-    <?php include 'navbar.php'; ?>
-
-    <div class="container chat-container">
-        <div class="row h-100">
-            <!-- Participants List -->
-            <div class="col-md-4 participants-list">
-                <div class="list-group">
-                    <?php while($row = mysqli_fetch_assoc($participants)): ?>
-                        <?php
-                        if($_SESSION["user_type"] === "doctor") {
-                            $chat_id = $row['caretaker_id'];
-                            $display_name = $row['patient_name'] . "'s Caretaker";
-                            $username = $row['caretaker_username'];
-                        } else {
-                            $chat_id = $row['doctor_id'];
-                            $display_name = "Dr. " . $row['doctor_name'];
-                            $username = $row['doctor_username'];
-                        }
-                        ?>
-                        <div class="participant-item" data-chat-id="<?php echo $chat_id; ?>" 
-                             data-name="<?php echo htmlspecialchars($display_name); ?>">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <strong><?php echo htmlspecialchars($display_name); ?></strong>
-                                    <div class="text-muted small"><?php echo htmlspecialchars($username); ?></div>
-                                </div>
-                                <?php if($row['unread_count'] > 0): ?>
-                                    <span class="unread-badge"><?php echo $row['unread_count']; ?></span>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                    <?php endwhile; ?>
-                </div>
+    <div class="container">
+        <div class="chat-container">
+            <div class="chat-header">
+                <h2><i class="fas fa-comments me-3"></i>Patient Communication</h2>
             </div>
-
-            <!-- Chat Messages -->
-            <div class="col-md-8 chat-messages">
-                <div class="welcome-message" id="welcomeMessage">
-                    <i class='bx bx-message-square-dots' style='font-size: 48px;'></i>
-                    <h4 class="mt-3">Welcome to Chat</h4>
-                    <p>Select a conversation to start messaging</p>
+            
+            <div class="row g-0 h-100">
+                <!-- Participants List -->
+                <div class="col-md-4 participants-list">
+                    <?php if(mysqli_num_rows($participants) == 0): ?>
+                        <div class="text-center p-4">
+                            <i class="fas fa-users" style="font-size: 48px; color: var(--forest-green); opacity: 0.5;"></i>
+                            <p class="text-muted mt-3">No conversations available</p>
+                        </div>
+                    <?php else: ?>
+                        <?php while($row = mysqli_fetch_assoc($participants)): ?>
+                            <?php
+                            if($_SESSION["user_type"] === "doctor") {
+                                $chat_id = $row['caretaker_id'];
+                                $display_name = $row['patient_name'] . "'s Caretaker";
+                                $username = $row['caretaker_username'];
+                            } else {
+                                $chat_id = $row['doctor_id'];
+                                $display_name = "Dr. " . $row['doctor_name'];
+                                $username = $row['doctor_username'];
+                            }
+                            ?>
+                            <div class="participant-item" data-chat-id="<?php echo $chat_id; ?>" 
+                                 data-name="<?php echo htmlspecialchars($display_name); ?>">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="flex-grow-1">
+                                        <div class="participant-name"><?php echo htmlspecialchars($display_name); ?></div>
+                                        <div class="participant-username text-muted"><?php echo htmlspecialchars($username); ?></div>
+                                    </div>
+                                    <?php if($row['unread_count'] > 0): ?>
+                                        <span class="unread-badge"><?php echo $row['unread_count']; ?></span>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        <?php endwhile; ?>
+                    <?php endif; ?>
                 </div>
-                
-                <div id="chatArea" style="display: none;">
-                    <div class="messages-container" id="messagesContainer"></div>
-                    <div class="chat-input">
-                        <form id="messageForm" class="d-flex gap-2">
-                            <input type="text" class="form-control" id="messageInput" placeholder="Type your message...">
-                            <button type="submit" class="btn btn-primary">Send</button>
-                        </form>
+
+                <!-- Chat Messages -->
+                <div class="col-md-8 chat-messages">
+                    <div class="welcome-message" id="welcomeMessage">
+                        <i class="fas fa-comment-dots"></i>
+                        <h4>Welcome to Chat</h4>
+                        <p>Select a conversation to start messaging</p>
+                    </div>
+                    
+                    <div id="chatArea" style="display: none;">
+                        <div class="messages-container" id="messagesContainer"></div>
+                        <div class="chat-input">
+                            <form id="messageForm" class="d-flex gap-3">
+                                <input type="text" class="form-control" id="messageInput" placeholder="Type your message...">
+                                <button type="submit" class="btn">
+                                    <i class="fas fa-paper-plane me-2"></i>Send
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -208,7 +458,9 @@ $participants = mysqli_stmt_get_result($stmt);
                 currentChatName = this.dataset.name;
                 
                 document.getElementById('welcomeMessage').style.display = 'none';
-                document.getElementById('chatArea').style.display = 'block';
+                document.getElementById('chatArea').style.display = 'flex';
+                document.getElementById('chatArea').style.flexDirection = 'column';
+                document.getElementById('chatArea').style.height = '100%';
                 
                 // Load messages
                 loadMessages();
@@ -304,4 +556,4 @@ $participants = mysqli_stmt_get_result($stmt);
         }, 5000);
     </script>
 </body>
-</html> 
+</html>

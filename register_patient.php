@@ -54,27 +54,27 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
     // If no errors, proceed with registration
     if(empty($errors)) {
         if(move_uploaded_file($_FILES["patient_image"]["tmp_name"], $target_file)) {
+            // Combine address fields
+            $full_address = $_POST['region'] . ', ' . $_POST['ward'] . ', ' . $_POST['street'];
+            
             $sql = "INSERT INTO patients (
-                full_name, age, gender, region, ward, street, 
+                full_name, age, gender, address, 
                 emergency_contact, emergency_phone, doctor_id, 
-                device_id, registration_date, image_path, status
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Active')";
+                device_id, registration_date
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
             
             if($stmt = mysqli_prepare($conn, $sql)) {
                 $device_id = "ESP32_" . time();
-                mysqli_stmt_bind_param($stmt, "sissssssisss", 
+                mysqli_stmt_bind_param($stmt, "sissssiss", 
                     $_POST['full_name'],
                     $_POST['age'],
                     $_POST['gender'],
-                    $_POST['region'],
-                    $_POST['ward'],
-                    $_POST['street'],
+                    $full_address,
                     $_POST['caretaker_name'],
                     $_POST['caretaker_phone'],
                     $_SESSION['id'],
                     $device_id,
-                    $_POST['registration_date'],
-                    $target_file
+                    $_POST['registration_date']
                 );
                 
                 if(mysqli_stmt_execute($stmt)) {
@@ -86,13 +86,19 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
                     $caretaker_password = "care123"; // Default password
                     $hashed_password = password_hash($caretaker_password, PASSWORD_DEFAULT);
                     
+                    // Extract first and last name from caretaker name
+                    $name_parts = explode(' ', $_POST['caretaker_name'], 2);
+                    $first_name = $name_parts[0];
+                    $last_name = isset($name_parts[1]) ? $name_parts[1] : '';
+                    
                     // Insert into caretaker_credentials
-                    $sql = "INSERT INTO caretaker_credentials (patient_id, username, password) VALUES (?, ?, ?)";
-                    if($stmt2 = mysqli_prepare($conn, $sql)) {
-                        mysqli_stmt_bind_param($stmt2, "iss", $patient_id, $caretaker_username, $hashed_password);
+                    $sql2 = "INSERT INTO caretaker_credentials (first_name, last_name, username, password, patient_id) VALUES (?, ?, ?, ?, ?)";
+                    if($stmt2 = mysqli_prepare($conn, $sql2)) {
+                        mysqli_stmt_bind_param($stmt2, "ssssi", $first_name, $last_name, $caretaker_username, $hashed_password, $patient_id);
                         if(mysqli_stmt_execute($stmt2)) {
                             $_SESSION["success"] = "Patient " . htmlspecialchars($_POST['full_name']) . " has been registered successfully!<br>" .
                                                  "Device ID: " . $device_id . "<br>" .
+                                                 "Image saved to: " . $target_file . "<br>" .
                                                  "Caretaker Login:<br>" .
                                                  "Username: " . $caretaker_username . "<br>" .
                                                  "Password: " . $caretaker_password;
@@ -511,7 +517,7 @@ include "navbar.php";
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label"><i class="fas fa-camera me-2"></i>Patient Photo</label>
-                        <input type="file" name="patient_image" class="form-control" accept="image/jpeg,image/png" required onchange="previewImage(this)">
+                        <input type="file" name="patient_image" class="form-control" accept="image/jpeg,image/png,image/jpg" required onchange="previewImage(this)">
                         <img id="preview" class="preview-image d-none">
                     </div>
                 </div>

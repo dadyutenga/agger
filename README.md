@@ -205,3 +205,11 @@ For technical support or questions, please contact the system administrator.
 ## License
 
 [Your License Information] 
+
+
+Patient agger has been registered successfully!
+Device ID: ESP32_1751386198
+Image saved to: uploads/patients/1751386198.jpg
+Caretaker Login:
+Username: care_ESP32_1751386198
+Password: care123
